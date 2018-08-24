@@ -12,7 +12,6 @@ import com.redbean.httpcommon.utils.ApiHeaders;
 import com.redbean.httpcommon.utils.IOUtils;
 import com.redbean.httpcommon.utils.LogUtil;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -22,10 +21,21 @@ import java.util.Map;
 public class ApiClient {
     private Credentials credentials;
     private ServiceClient serviceClient;
+    private ClientConfiguration clientConfiguration;
+
+
+    private void buildClientConfiguration() {
+        clientConfiguration = new ClientConfiguration();
+    }
+
+    public ClientConfiguration getClientConfiguration() {
+        return clientConfiguration;
+    }
 
     public ApiClient(String accessKeyId, String secretAccessKey) {
-        this.credentials = new DefaultCredentials(accessKeyId, secretAccessKey, null);
-        this.serviceClient = new DefaultServiceClient(new ClientConfiguration());
+        credentials = new DefaultCredentials(accessKeyId, secretAccessKey, null);
+        buildClientConfiguration();
+        serviceClient = new DefaultServiceClient(clientConfiguration);
     }
 
     public String apiServlet(String endpoint, String cmd, Map<String, Object> parameters) {
@@ -69,7 +79,7 @@ public class ApiClient {
             responseMessage = serviceClient.sendRequest(requestMessage, executionContext);
 
             //step 5: return result
-            if(responseMessage.isSuccessful()) {
+            if (responseMessage.isSuccessful()) {
                 InputStream originalContent = responseMessage.getContent();
                 byte[] r = IOUtils.readStreamAsByteArray(originalContent);
                 result = new String(r, ApiConstants.DEFAULT_CHARSET_NAME);
@@ -87,6 +97,6 @@ public class ApiClient {
 
     public static void main(String[] args) {
         ApiClient apiClient = new ApiClient("20180824", "m&8!L&(i$+%^@~*?");
-        System.out.println("result: " + apiClient.apiServlet("http://localhost:8080", "demo", null));
+        System.out.println("result: " + apiClient.apiServlet("http://localhost:8080", "test", null));
     }
 }

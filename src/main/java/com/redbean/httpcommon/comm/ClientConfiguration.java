@@ -9,9 +9,9 @@ public class ClientConfiguration {
     public static final int DEFAULT_SOCKET_TIMEOUT = 20 * 1000;
     public static final int DEFAULT_VALIDATE_AFTER_INACTIVITY = 2 * 1000;
     public static final boolean DEFAULT_USE_REAPER = true;
-    public static final long DEFAULT_IDLE_CONNECTION_TIME = 60 * 1000;
+    public static final long DEFAULT_IDLE_CONNECTION_TIME = 1 * 60 * 1000;
     public static final int DEFAULT_REQUEST_TIMEOUT = 5 * 60 * 1000;
-    public static final long DEFAULT_SLOW_REQUESTS_THRESHOLD = 5 * 1000;
+    public static final long DEFAULT_SLOW_REQUESTS_THRESHOLD = 30 * 1000;
 
 
     private int maxErrorRetry = DEFAULT_MAX_RETRIES;
@@ -164,7 +164,7 @@ public class ClientConfiguration {
     }
 
     /**
-     * 设置慢请求阈值，用时超过该阈值的请求将打印到日志中，单位毫秒，默认5分钟。
+     * 设置慢请求阈值，用时超过该阈值的请求将打印到日志中，单位毫秒，默认30秒。
      */
     public long getSlowRequestsThreshold() {
         return slowRequestsThreshold;
