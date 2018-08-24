@@ -2,10 +2,74 @@ package com.redbean.httpcommon.utils;
 
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
 
 public class AESUtil {
-    public static byte[] hex2byte(byte[] b) {
+
+    private static final String KEY_ALGORITHM = "AES";
+    private static final String DEFAULT_CIPHER_ALGORITHM = "AES/ECB/PKCS5Padding";
+
+
+    private static Key toKey(String key) throws Exception {
+        return new SecretKeySpec(key.getBytes(ApiConstants.DEFAULT_CHARSET_NAME), KEY_ALGORITHM);
+    }
+
+    public static byte[] encrypt(byte[] data, String key) {
+        try {
+            Cipher cipher = Cipher.getInstance(DEFAULT_CIPHER_ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, toKey(key));
+            byte[] encrypted = cipher.doFinal(data);
+            System.out.println(byte2hex(encrypted).toLowerCase());
+            return byte2hex(encrypted).toLowerCase().getBytes(ApiConstants.DEFAULT_CHARSET_NAME);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static byte[] decrypt(byte[] data, String key) {
+        try {
+            Cipher cipher = Cipher.getInstance(DEFAULT_CIPHER_ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, toKey(key));
+            return cipher.doFinal(hex2byte(data));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String initSecretKey() {
+        KeyGenerator kg;
+        try {
+            kg = KeyGenerator.getInstance(KEY_ALGORITHM);
+            kg.init(128);
+            SecretKey secretKey = kg.generateKey();
+            return byte2hex(secretKey.getEncoded()).toLowerCase();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private static String byte2hex(byte[] b) {
+        String hs = "";
+        String stmp = "";
+        for (int n = 0; n < b.length; n++) {
+            stmp = (Integer.toHexString(b[n] & 0XFF));
+            if (stmp.length() == 1) {
+                hs = hs + "0" + stmp;
+            } else {
+                hs = hs + stmp;
+            }
+        }
+        return hs.toUpperCase();
+    }
+
+    private static byte[] hex2byte(byte[] b) {
         if ((b.length % 2) != 0)
             throw new IllegalArgumentException("长度不是偶数");
         byte[] b2 = new byte[b.length / 2];
@@ -16,76 +80,8 @@ public class AESUtil {
         return b2;
     }
 
-    public static String byte2hex(byte[] b) {
-        String hs = "";
-        String stmp = "";
-        for (int n = 0; n < b.length; n++) {
-            stmp = (java.lang.Integer.toHexString(b[n] & 0XFF));
-            if (stmp.length() == 1) {
-                hs = hs + "0" + stmp;
-            } else {
-                hs = hs + stmp;
-            }
-        }
-        return hs.toUpperCase();
-    }
-
-    public static String Decrypt(String sSrc, String sKey) throws Exception {
-        try {
-            byte[] raw = sKey.getBytes(ApiConstants.DEFAULT_CHARSET_NAME);
-            SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-            byte[] encrypted1 = hex2byte(sSrc.getBytes());
-            byte[] original = cipher.doFinal(encrypted1);
-            return new String(original);
-        } catch (Exception ex) {
-            LogUtil.getLog().error(ex.getMessage(), ex);
-        }
-        return null;
-    }
-
-    public static String Encrypt(String sSrc, String sKey) {
-        try {
-            byte[] raw = sKey.getBytes(ApiConstants.DEFAULT_CHARSET_NAME);
-            SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-            byte[] encrypted = cipher.doFinal(sSrc.getBytes());
-            return byte2hex(encrypted).toLowerCase();
-        }catch (Exception ex) {
-            LogUtil.getLog().error(ex.getMessage(), ex);
-        }
-        return null;
-    }
-
-    public static byte[] encrypt2Bytes(byte[] src, String sKey) {
-        try {
-            byte[] raw = sKey.getBytes(ApiConstants.DEFAULT_CHARSET_NAME);
-            SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
-            byte[] encrypted = cipher.doFinal(src);
-            return encrypted;
-        } catch (Exception ex) {
-            LogUtil.getLog().error(ex.getMessage(), ex);
-        }
-
-        return null;
-    }
-
-    public static byte[] decrypt2Bytes(byte[] src, String sKey) {
-        try {
-            byte[] raw = sKey.getBytes(ApiConstants.DEFAULT_CHARSET_NAME);
-            SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
-            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
-            byte[] encrypted1 = src;
-            byte[] original = cipher.doFinal(encrypted1);
-            return original;
-        } catch (Exception ex) {
-            LogUtil.getLog().error(ex.getMessage(), ex);
-        }
-        return null;
+    public static void main(String[] args) throws Exception{
+        byte[] b = AESUtil.encrypt("hello world".getBytes(ApiConstants.DEFAULT_CHARSET_NAME), "m&8!L&(i$+%^@~*?");
+        System.out.println(new String(AESUtil.decrypt(b, "m&8!L&(i$+%^@~*?"),ApiConstants.DEFAULT_CHARSET_NAME));
     }
 }

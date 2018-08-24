@@ -11,7 +11,7 @@ public class ClientConfiguration {
     public static final boolean DEFAULT_USE_REAPER = true;
     public static final long DEFAULT_IDLE_CONNECTION_TIME = 60 * 1000;
     public static final int DEFAULT_REQUEST_TIMEOUT = 5 * 60 * 1000;
-    public static final long DEFAULT_SLOW_REQUESTS_THRESHOLD = 30 * 1000;
+    public static final long DEFAULT_SLOW_REQUESTS_THRESHOLD = 5 * 1000;
 
 
     private int maxErrorRetry = DEFAULT_MAX_RETRIES;

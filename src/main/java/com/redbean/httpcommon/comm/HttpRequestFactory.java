@@ -6,6 +6,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
 
+import java.util.Iterator;
+
 public class HttpRequestFactory {
 
     public HttpRequestBase createHttpRequest(ServiceClient.Request request) {
@@ -19,7 +21,6 @@ public class HttpRequestFactory {
             if (request.getContent() != null) {
                 postMethod.setEntity(new RepeatableInputStreamEntity(request));
             }
-
             httpRequest = postMethod;
         } else if (method == HttpMethod.GET) {
             httpRequest = new HttpGet(uri);
@@ -27,6 +28,10 @@ public class HttpRequestFactory {
             throw new ClientException("Unknown HTTP method name: " + method.toString());
         }
 
+        for (Iterator<String> iterator = request.getHeaders().keySet().iterator(); iterator.hasNext(); ) {
+            String next = iterator.next();
+            httpRequest.setHeader(next, request.getHeaders().get(next));
+        }
         return httpRequest;
     }
 }

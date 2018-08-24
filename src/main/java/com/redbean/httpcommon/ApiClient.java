@@ -12,6 +12,7 @@ import com.redbean.httpcommon.utils.ApiHeaders;
 import com.redbean.httpcommon.utils.IOUtils;
 import com.redbean.httpcommon.utils.LogUtil;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -35,6 +36,7 @@ public class ApiClient {
                 parameters = new LinkedHashMap<String, Object>();
             }
             parameters.put("command", cmd);
+            parameters.put("accessKeyId", credentials.getAccessKeyId());
 
             //step 1: build post body data
             JSONObject jo = new JSONObject();
@@ -67,9 +69,13 @@ public class ApiClient {
             responseMessage = serviceClient.sendRequest(requestMessage, executionContext);
 
             //step 5: return result
-            InputStream originalContent = responseMessage.getContent();
-            byte[] r = IOUtils.readStreamAsByteArray(originalContent);
-            result = new String(r, ApiConstants.DEFAULT_CHARSET_NAME);
+            if(responseMessage.isSuccessful()) {
+                InputStream originalContent = responseMessage.getContent();
+                byte[] r = IOUtils.readStreamAsByteArray(originalContent);
+                result = new String(r, ApiConstants.DEFAULT_CHARSET_NAME);
+            } else {
+                LogUtil.getLog().error("status: " + responseMessage.getStatusCode() + ", message: " + responseMessage.getErrorResponseAsString());
+            }
         } catch (Exception e) {
             LogUtil.getLog().error(e.getMessage(), e);
         } finally {
@@ -80,7 +86,7 @@ public class ApiClient {
 
 
     public static void main(String[] args) {
-        ApiClient apiClient = new ApiClient("a", "m&8!L&(i$+%^@~*?");
+        ApiClient apiClient = new ApiClient("20180824", "m&8!L&(i$+%^@~*?");
         System.out.println("result: " + apiClient.apiServlet("http://localhost:8080", "demo", null));
     }
 }
